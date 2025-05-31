@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  
+  <!-- Product definition with Arabic support -->
+  <Product Id="*" 
+           Name="خلدون" 
+           Language="1025" 
+           Version="1.0.0" 
+           Manufacturer="مطور تطبيق خلدون" 
+           UpgradeCode="12345678-1234-1234-1234-123456789012">
+    
+    <!-- Package information -->
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perMachine"
+             Description="تطبيق المكالمات الصوتية خلدون"
+             Comments="تطبيق المكالمات الصوتية مع حلال DNS ومراقبة الاتصال"
+             Manufacturer="مطور تطبيق خلدون" />
+
+    <!-- Media definition -->
+    <Media Id="1" Cabinet="khaldoun.cab" EmbedCab="yes" />
+
+    <!-- Directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="خلدون" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="خلدون" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <!-- Components -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="*">
+        <File Id="KhaldounExe" 
+              Source="$(var.SourceDir)\خلدون.exe" 
+              KeyPath="yes" 
+              Checksum="yes" />
+      </Component>
+      
+      <!-- Additional application files -->
+      <Component Id="ApplicationFiles" Guid="*">
+        <File Id="AppConfig" Source="$(var.SourceDir)\app.cfg" />
+        <!-- Add more files as needed -->
+      </Component>
+    </DirectoryRef>
+
+    <!-- Start Menu shortcuts -->
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="*">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="خلدون"
+                  Description="تطبيق المكالمات الصوتية"
+                  Target="[#KhaldounExe]"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" 
+                       Key="Software\خلدون" 
+                       Name="installed" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Desktop shortcut -->
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="ApplicationDesktopShortcut" Guid="*">
+        <Shortcut Id="ApplicationDesktopShortcut"
+                  Name="خلدون"
+                  Description="تطبيق المكالمات الصوتية"
+                  Target="[#KhaldounExe]"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" 
+                       Key="Software\خلدون" 
+                       Name="desktop_shortcut" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Features -->
+    <Feature Id="ProductFeature" Title="خلدون" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="ApplicationFiles" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationDesktopShortcut" />
+    </Feature>
+
+    <!-- Custom Actions for post-installation messages -->
+    <CustomAction Id="ShowMessage1" 
+                  BinaryKey="WixCA" 
+                  DllEntry="WixQuietExec" 
+                  Execute="immediate" 
+                  Return="ignore"
+                  ExeCommand='cmd.exe /c "echo بسم الله &amp; pause"' />
+    
+    <CustomAction Id="ShowMessage2" 
+                  BinaryKey="WixCA" 
+                  DllEntry="WixQuietExec" 
+                  Execute="immediate" 
+                  Return="ignore"
+                  ExeCommand='cmd.exe /c "echo الحمدلله &amp; pause"' />
+
+    <!-- Installation sequence -->
+    <InstallExecuteSequence>
+      <Custom Action="ShowMessage1" After="InstallFinalize">NOT Installed</Custom>
+      <Custom Action="ShowMessage2" After="ShowMessage1">NOT Installed</Custom>
+    </InstallExecuteSequence>
+
+    <!-- UI Reference -->
+    <UIRef Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+  </Product>
+</Wix>
